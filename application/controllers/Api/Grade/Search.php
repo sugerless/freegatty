@@ -20,8 +20,7 @@ class Api_Grade_Search_Controller extends Api_Base_Controller
     protected function messages(): array
     {
         // TODO: Implement messages() method.
-        $Param = $this->getRequest()->getParams();
-        print_r($Param);
+
         return [
             'swuid.required'=>'学号不能为空',
             'swuid.digits_between'=>'学号为15位数字',
@@ -39,11 +38,10 @@ class Api_Grade_Search_Controller extends Api_Base_Controller
     protected function process()
     {
 
-        $Param = $this->getRequescdghlnyt()->getParams();
+        $Param = $this->getRequest()->getParams();
         $results = Service_Score_Model::Search_Score($Param);
 
         if ($results->isEmpty()) {
-            print_r("hasNew");
             //getNew data
             //$updateGreade  = Middle_Curl_CurlRequest_Controller::Get(
                 //"http://172.18.9.140/api/grade/temp?swuid=".$Param['swuid']."&password=12345");
@@ -62,17 +60,14 @@ class Api_Grade_Search_Controller extends Api_Base_Controller
 
         foreach ($results as $result) {
             $node = array(
-                "swuid" => $result->swuid,
                 "score" => $result->score,
-                "term" => $result->term,
-                "lessonId" => $result->lesson_id,
-                "credit" => $result->credit,
-                "academicYear" => $result->academic_year,
                 "lessonName" => $result->lesson_name,
-                "teacher" => $result->teacher,
+                "academicYear" => $result->academic_year,
+                "term" => $result->term,
+                "gradePoint" => $result->grade_point,
+                "credit" => $result->credit,
                 "examType" => $result->exam_type,
                 "lessonType" => $result->lesson_type,
-                "gradePoint" => $result->grade_point,
             );
             array_push($this->data, $node);
         }

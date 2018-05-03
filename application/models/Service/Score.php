@@ -8,12 +8,12 @@ class Service_Score_Model extends Service_Base_Model
         return $records;
     }
 
-    public static function Search_Score($Search){
-        $condition = [['swuid','=',$Search["swuid"]]];
-        if(isset($Search['academicYear'])){
-            array_push($condition,['academic_year','=',$Search["academicYear"]]);
-            if(isset($Search['term'])) {
-                array_push($condition,['term','=',$Search["term"]]);
+    public static function Search_Score($SearchParam){
+        $condition = [['swuid','=',$SearchParam["swuid"]]];
+        if(isset($SearchParam['academicYear'])){
+            array_push($condition,['academic_year','=',$SearchParam["academicYear"]]);
+            if(isset($SearchParam['term'])) {
+                array_push($condition,['term','=',$SearchParam["term"]]);
             }
         }
         $records= Dao_Score_Model::where($condition)->select('*')->get();
@@ -23,7 +23,7 @@ class Service_Score_Model extends Service_Base_Model
     public static function Save_Score($swuid,$gradeData){
 
         $condition=[
-            ['swuid',$swuid],
+            ['swuid','=',$swuid],
         ];
         Dao_Score_Model::where($condition)->delete();
 
@@ -34,6 +34,7 @@ class Service_Score_Model extends Service_Base_Model
             $cord->academic_year = $grade['academicYear'];
             $cord->term = $grade['term'];
             $cord->lesson_name = $grade['lessonName'];
+
             $cord->score = $grade['score'];
             $cord->credit = $grade['credit'];
             $cord->teacher = $grade['teacher'];
@@ -44,9 +45,6 @@ class Service_Score_Model extends Service_Base_Model
             print_r($grade);
             $cord->save();
         }
-
-
-        return ;
     }
 
 }
