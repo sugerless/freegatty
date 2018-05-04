@@ -56,6 +56,7 @@ abstract class Api_Base_Controller extends Controller_Abstract
      */
     public function init()
     {
+
         if ($this->getRequest()->method !== $this->method()) {
 		throw new InvalidRequestMethod();
         }

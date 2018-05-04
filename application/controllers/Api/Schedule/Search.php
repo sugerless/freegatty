@@ -41,7 +41,8 @@ class Api_Schedule_Search_Controller extends Api_Base_Controller
     {
 
         $Param = $this->getRequest()->getParams();
-        $results = Service_Schedule_Model::Search_Schedule_NotDIY($Param);
+        $swuid = "222015321210005";
+        $results = Service_Schedule_Model::Search_Schedule($swuid,$Param,false);
 
         if ($results->isEmpty()) {
             //getNew data
@@ -49,35 +50,47 @@ class Api_Schedule_Search_Controller extends Api_Base_Controller
             //"http://172.18.9.140/api/grade/temp?swuid=".$Param['swuid']."&password=12345");
             $ScheduleData = array(["academicYear"=>2018,"term"=>1,"lessonId"=>"201127",
                     "lessonName"=>"computer vision","teacher"=>"Hello kitty","academicTitle"=>"fujiaoshou",
-                    "startTime"=>4,"endTime"=>5,"week"=>5,"day"=>"5","capmus"=>"beiqu",
+                    "startTime"=>4,"endTime"=>5,"week"=>"星期三","campus"=>"beiqu",
                     "weekTime"=>"1,2,3,4,5","classroom"=>"25-0901",],
                 ["academicYear"=>2018,"term"=>1,"lessonId"=>"201127",
-                    "lessonName"=>"computer vision","teacherem"=>"Hello kitty","academicTitle"=>"fujiaoshou",
-                    "startTime"=>4,"endTime"=>5,"week"=>5,"day"=>"5","capmus"=>"beiqu",
+                    "lessonName"=>"computer vision","teacher"=>"Hello kitty","academicTitle"=>"fujiaoshou",
+                    "startTime"=>4,"endTime"=>5,"week"=>"星期四","campus"=>"beiqu",
                     "weekTime"=>"1,2,3,4,5","classroom"=>"25-0901"],
             );
-            Service_Schedule_Model::Save_Schedule_NotDIY($Param['swuid'],$ScheduleData);
-
+            Service_Schedule_Model::Save_Schedule($Param['swuid'],$ScheduleData,$IsDIY=false);
         }
+        $results = Service_Schedule_Model::Search_Schedule_All($swuid,$Param);
+        for ($i = 1; $i <= 20;$i++){
+            array_push($this->data, array(
+                "weekSort"=>$i,
+                "weekitem"=>[],
 
-
+            ));
+        }
+        $weeks = array("星期一"=>1, "星期二"=>2,"星期三"=>3,"星期四"=>4,"星期五"=>5, "星期六"=>6,"星期天"=>7);
         foreach ($results as $result) {
+            $weekTime = explode(",",$result->week_time);
             $node = array(
-                "score" => $result->score,
-                "lessonName" => $result->lesson_name,
                 "academicYear" => $result->academic_year,
                 "term" => $result->term,
-                "gradePoint" => $result->grade_point,
-                "credit" => $result->credit,
-                "examType" => $result->exam_type,
-                "lessonType" => $result->lesson_type,
+                "lessonId" => $result->lesson_id,
+                "lessonName" => $result->lesson_name,
+                "teacher" => $result->teacher,
+                "academicTitle" => $result->academic_title,
+                "startTime" => $result->start_time,
+                "endTime" => $result->end_time,
+                "day" => $weeks[$result->week],
+                "week" => $result->week,
+                "campus" => $result->campus,
+                "classroom" => $result->classroom,
             );
-            array_push($this->data, $node);
+            foreach ($weekTime as $week){
+                array_push($this->data[(int)$week -1]["weekitem"],$node);
+            }
+
         }
         $this->msg="查询成功";
         $this->success=true;
         $this->code=200;
-
-
     }
 }
