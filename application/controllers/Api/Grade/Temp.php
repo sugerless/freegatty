@@ -19,7 +19,6 @@ class Api_Grade_Temp_Controller extends Api_Base_Controller
     protected function messages(): array
     {
         // TODO: Implement messages() method.
-        $Param = $this->getRequest()->getParams();
 
         return [
             'swuid.required'=>'学号不能为空',
@@ -30,7 +29,6 @@ class Api_Grade_Temp_Controller extends Api_Base_Controller
 
     protected function process()
     {
-        $Param = $this->getRequest()->getParams();
 
 
         $this->data = array(
