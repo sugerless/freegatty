@@ -21,7 +21,7 @@ abstract class Api_Base_Controller extends Controller_Abstract
     protected $data =[];
     protected $msg="";
 
-    //需要特殊参数的controller写在这里 by suger 2018 5.5
+    //将需要特殊参数的controller写在这里 by suger 2018 5.5
     protected $arrNeedSpecialParam=[
         'json'=>['Api_Schedule_Addlesson',
                  'Api_Schedule_Modifylesson',
