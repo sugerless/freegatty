@@ -15,7 +15,7 @@ use Yaf\Controller_Abstract;
 
 abstract class Api_Base_Controller extends Controller_Abstract
 {
-    protected $needLogin = true;
+    protected $needLogin = false;
     protected $success = false;
     protected $code = "200";
     protected $data =[];
@@ -149,10 +149,10 @@ abstract class Api_Base_Controller extends Controller_Abstract
     protected function auth()
     {
         //删除无效逻辑，等待对接授权中心 by suger 2018 5.5
-        /*if ($this->needLogin === false) {
+        if ($this->needLogin === false) {
             return true;
         }
-
+/*
         if (Middle_Token_Validate_Controller::Validate()===1) {
             return true;
         }
