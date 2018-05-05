@@ -51,6 +51,5 @@ class Api_Grade_Temp_Controller extends Api_Base_Controller
         $this->success=true;
         $this->code=200;
 
-
     }
 }

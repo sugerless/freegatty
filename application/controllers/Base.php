@@ -1,7 +1,7 @@
 <?php
 
 use SwuOS\Openapi\Exception\CustomException;
-use SwuOS\Openapi\Exception\InvalidRequestMethod;
+use SwuOS\Openapi\Exception\InvalidRequestMethodException;
 use SwuOS\Openapi\Exception\NeedLoginException;
 use SwuOS\Openapi\Exception\UnsupportedRequestMethodException;
 use SwuOS\Openapi\Library\Log;

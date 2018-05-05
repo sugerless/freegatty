@@ -1,9 +1,10 @@
 <?php
 
 use SwuOS\Openapi\Exception\CustomException;
-use SwuOS\Openapi\Exception\InvalidRequestMethod;
+use SwuOS\Openapi\Exception\InvalidRequestMethodException;
 use SwuOS\Openapi\Exception\NeedLoginException;
 use SwuOS\Openapi\Exception\UnsupportedRequestMethodException;
+use SwuOS\Openapi\Exception\InvalidParamsTypeException;
 use SwuOS\Openapi\Library\Log;
 use Illuminate\Container\Container;
 use Illuminate\Translation\ArrayLoader;
@@ -19,6 +20,14 @@ abstract class Api_Base_Controller extends Controller_Abstract
     protected $code = "200";
     protected $data =[];
     protected $msg="";
+
+    //需要特殊参数的controller写在这里 by suger 2018 5.5
+    protected $arrNeedSpecialParam=[
+        'json'=>['Api_Schedule_Addlesson',
+                 'Api_Schedule_Modifylesson',
+        ],
+    ];
+
     /**
      * 参数校验规则
      *
@@ -51,14 +60,14 @@ abstract class Api_Base_Controller extends Controller_Abstract
     }
 
     /**
-     * @throws InvalidRequestMethod
+     * @throws InvalidRequestMethodException
      * @throws UnsupportedRequestMethodException
      */
     public function init()
     {
 
         if ($this->getRequest()->method !== $this->method()) {
-		throw new InvalidRequestMethod();
+		throw new InvalidRequestMethodException();
         }
 
         switch ($this->method()) {
@@ -84,6 +93,7 @@ abstract class Api_Base_Controller extends Controller_Abstract
             $this->validate();
             $this->process();
             $this->response($this->success,$this->data,$this->code,$this->msg);
+
         } catch (CustomException $e) {
             Log::info($e->getMessage(), $e->getTrace(), 'error');
             $this->response($this->success,[], $e->getCode(), $e->getMessage());
@@ -106,9 +116,8 @@ abstract class Api_Base_Controller extends Controller_Abstract
     {
         $responseData = [
             'success' => $success,
-            'msg'   => $message,
-            'code'  =>$code,
-            'data'  => empty($data) ? new stdClass() : $data,
+            'message'   => $message,
+            'result'  => empty($data) ? new stdClass() : $data,
         ];
 
         Log::info('output', $responseData);
@@ -126,23 +135,37 @@ abstract class Api_Base_Controller extends Controller_Abstract
     protected function validate()
     {
         $factory = new Factory(new Translator(new ArrayLoader(), ''), Container::getInstance());
+        if(!empty($this->getRequest()->getParams()))
+            $factory->validate($this->getRequest()->getParams(), $this->rules(), $this->messages(), []);
 
-        $factory->validate($this->getRequest()->getParams(), $this->rules(), $this->messages(), []);
+        //对特殊参数进行参数验证 by suger 2018 5.5
+        else{
+            if(empty($this->Param))
+                throw new InvalidParamsTypeException();
+            $factory->validate($this->Param, $this->rules(), $this->messages(), []);
+        }
     }
 
     protected function auth()
     {
-        if ($this->needLogin === false) {
+        //删除无效逻辑，等待对接授权中心 by suger 2018 5.5
+        /*if ($this->needLogin === false) {
             return true;
         }
 
         if (Middle_Token_Validate_Controller::Validate()===1) {
             return true;
         }
+        */
 
-        if($this->getRequest()->getControllerName()=="Api_User_Login"){
+        //对参数类型为json的controller设置参数 by suger 2018 5.5
+        if(in_array($this->getRequest()->getControllerName(),$this->arrNeedSpecialParam['json'])){
+
+            $this->Param=json_decode(file_get_contents('php://input'),true);
             return true;
+
         }
+
         throw new NeedLoginException();
     }
 
