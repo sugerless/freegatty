@@ -20,7 +20,7 @@ abstract class Api_Base_Controller extends Controller_Abstract
     protected $code = "200";
     protected $data =[];
     protected $msg="";
-
+    protected $Param;
     //将需要特殊参数的controller写在这里 by suger 2018 5.5
     protected $arrNeedSpecialParam=[
         'json'=>['Api_Schedule_Addlesson',
@@ -152,19 +152,15 @@ abstract class Api_Base_Controller extends Controller_Abstract
         if ($this->needLogin === false) {
             return true;
         }
-        //删除无效逻辑，等待对接授权中心 by suger 2018 5.5
-        /*
-        if (Middle_Token_Validate_Controller::Validate()===1) {
+        //对所有请求进行验证 by suger 2018 5.6
+        if (Middle_Token_Validate_Controller::Validate()===true) {
+
+            //对参数类型为json的controller设置参数 by suger 2018 5.5
+            if (in_array($this->getRequest()->getControllerName(), $this->arrNeedSpecialParam['json'])) {
+                $this->Param = json_decode(file_get_contents('php://input'), true);
+                return true;
+            }
             return true;
-        }
-        */
-
-        //对参数类型为json的controller设置参数 by suger 2018 5.5
-        if(in_array($this->getRequest()->getControllerName(),$this->arrNeedSpecialParam['json'])){
-
-            $this->Param=json_decode(file_get_contents('php://input'),true);
-            return true;
-
         }
 
         throw new NeedLoginException();

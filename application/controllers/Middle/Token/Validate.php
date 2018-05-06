@@ -1,31 +1,42 @@
 <?php
-    use \Firebase\JWT\JWT;
+    use SwuOS\Openapi\Exception\SystemErrorException;
 
     class Middle_Token_Validate_Controller {
+        //先去缓存中查找，若没有再请求授权中心获得授权并更新缓存，账户缓存有效期12h
+        // by suger 2018 5.6
         public static function Validate(){
-            return 1;
-            if(isset($_SERVER['HTTP_TOKEN']))
-                $jwt=$_SERVER['HTTP_TOKEN'];
-            else
-                return -3;//token字段不存在
 
-            $key="341204";
-            $decoded=JWT::decode($jwt,$key,array('HS256'));
-            if(!$decoded)
-                return -1;//token错误
-            $decoded_array=(array)$decoded;
-            if(!$decoded_array["student_id"])
-                return -1;//token错误
-            else {
-                $begintime=$decoded_array['time'];
-                $t=time();
-                $timediff=$t-$begintime;
-                $remain = $timediff%86400;
-                $hours = intval($remain / 3600);
-                if($hours>12){
-                    return -2;//token过期
+            if(isset($_SERVER['acToken'])) {
+                $token = $_SERVER['acToken'];
+            }
+            else{
+                return false;//token字段不存在
+            }
+
+            $redis=new Middle_Redis_FreegattyBaseCache_Controller();
+            $res=$redis->Get($token);
+            if(empty($res)) {
+                $strUrl='http://{server_url}/token/check';
+                $arrData = [
+                    'acToken' => $token
+                ];
+                $res = Middle_Curl_CurlRequest_Controller::Post($strUrl, $arrData);
+                if ($res) {
+                    $arrResponse = json_decode($res, true);
+                    if ($arrResponse['success'] == true) {
+                        $arrUserInfo = json_encode($arrResponse['result']);
+                        $redis->Set($token, $arrUserInfo, 43200);
+                        return true;//token验证成功
+                    } else {
+                        return false;//token验证失败
+                    }
                 }
-                return 1;//通过验证
+                else {
+                    new SystemErrorException();
+                }
+            }
+            else{
+                return true;//token验证成功
             }
         }
     }
