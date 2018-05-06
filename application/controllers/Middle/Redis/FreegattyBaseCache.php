@@ -7,6 +7,6 @@ class Middle_Redis_FreegattyBaseCache_Controller extends Middle_Redis_Base_Contr
         }
 
         public function Get($key){
-            $this->redis->get($key);
+            return $this->redis->get($key);
         }
 }

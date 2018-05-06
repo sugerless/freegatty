@@ -15,7 +15,7 @@ use Yaf\Controller_Abstract;
 
 abstract class Api_Base_Controller extends Controller_Abstract
 {
-    protected $needLogin = false;
+    protected $needLogin = true;
     protected $success = false;
     protected $code = "200";
     protected $data =[];

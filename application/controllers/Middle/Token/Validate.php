@@ -6,15 +6,16 @@
         // by suger 2018 5.6
         public static function Validate(){
 
-            if(isset($_SERVER['acToken'])) {
-                $token = $_SERVER['acToken'];
+            if(isset($_SERVER['HTTP_ACTOKEN'])) {
+                $token = $_SERVER['HTTP_ACTOKEN'];
             }
-            else{
+            else {
                 return false;//token字段不存在
             }
 
             $redis=new Middle_Redis_FreegattyBaseCache_Controller();
             $res=$redis->Get($token);
+
             if(empty($res)) {
                 $strUrl='http://{server_url}/token/check';
                 $arrData = [
