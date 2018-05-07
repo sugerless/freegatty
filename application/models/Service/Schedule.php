@@ -54,7 +54,7 @@ class Service_Schedule_Model extends Service_Base_Model
             $cord->lesson_id = $ScheduleData->lessonId;
             $cord->term = $ScheduleData->term;
             $cord->lesson_name = $ScheduleData->lessonName;
-            $cord->classroom = $ScheduleData->classroom;
+            $cord->classRoom = $ScheduleData->classRoom;
             $cord->teacher = $ScheduleData->teacher;
             $cord->academic_title = $ScheduleData->academicTitle;
             $cord->start_time = $ScheduleData->startTime;
@@ -77,7 +77,7 @@ class Service_Schedule_Model extends Service_Base_Model
                 $cord->lesson_id = $Schedule['lessonId'];
                 $cord->term = $Schedule['term'];
                 $cord->lesson_name = $Schedule['lessonName'];
-                $cord->classroom = $Schedule['classroom'];
+                $cord->classRoom = $Schedule['classRoom'];
                 $cord->teacher = $Schedule['teacher'];
                 $cord->academic_title = $Schedule['academicTitle'];
                 $cord->start_time = $Schedule['startTime'];
@@ -86,7 +86,7 @@ class Service_Schedule_Model extends Service_Base_Model
                 $cord->campus = $Schedule['campus'];
                 $cord->week_time = $Schedule['weekTime'];
                 $cord->DIY = 0;
-                return $cord->save();
+                $cord->save();
             }
         }
     }

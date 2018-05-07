@@ -22,10 +22,7 @@ CREATE TABLE freegatty_grade_record (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
--- ----------------------------
--- Records of freegatty_grade_record
--- ----------------------------
-INSERT INTO freegatty_grade_record VALUES (1,'222015321210005',60,'高等数学上',2017,1,2.0,3.0,'2018-01-01','2018-02-02');
+
 
 
 -- ----------------------------
@@ -45,7 +42,7 @@ CREATE TABLE freegatty_schedule (
   `end_time` tinyint(3) NOT NULL,
   `week` varchar(32) NOT NULL,
   `campus` varchar(32) NOT NULL,
-  `classroom` varchar(32) NOT NULL,
+  `classRoom` varchar(32) NOT NULL,
   `week_time` varchar(64) NOT NULL,
   `DIY` tinyint(1) NOT NULL,
   `created_at` datetime NOT NULL,

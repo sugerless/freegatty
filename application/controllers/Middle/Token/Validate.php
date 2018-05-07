@@ -17,16 +17,17 @@
             $res=$redis->Get($token);
 
             if(empty($res)) {
-                $strUrl='http://{server_url}/token/check';
+                $strUrl='http://119.27.174.160:29527/token/check';
                 $arrData = [
                     'acToken' => $token
                 ];
                 $res = Middle_Curl_CurlRequest_Controller::Post($strUrl, $arrData);
+
                 if ($res) {
                     $arrResponse = json_decode($res, true);
                     if ($arrResponse['success'] == true) {
                         $arrUserInfo = json_encode($arrResponse['result']);
-                        $redis->Set($token, $arrUserInfo, 43200);
+                        $redis->Set($token, $arrUserInfo, 1);
                         return true;//token验证成功
                     } else {
                         return false;//token验证失败

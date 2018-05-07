@@ -11,7 +11,6 @@ class Api_Grade_Search_Controller extends Api_Base_Controller
     {
         // TODO: Implement rules() method.
         return [
-            'swuid'=>'digits_between:15,15|required',
             'term'=>'numeric|max:3|min:0',
             'academicYear'=>'numeric|max:3000|min:2000',
         ];
@@ -22,8 +21,6 @@ class Api_Grade_Search_Controller extends Api_Base_Controller
         // TODO: Implement messages() method.
 
         return [
-            'swuid.required'=>'学号不能为空',
-            'swuid.digits_between'=>'学号为15位数字',
 
             'term.numeric'=>'学期必须为数字',
             'term.max'=>'学期数必须为1,2,3',
@@ -39,21 +36,34 @@ class Api_Grade_Search_Controller extends Api_Base_Controller
     {
 
         $Param = $this->getRequest()->getParams();
+
+        $token = $_SERVER['HTTP_ACTOKEN'];
+        $redis=new Middle_Redis_FreegattyBaseCache_Controller();
+        $user=json_decode($redis->Get($token));
+
+        if($user->swuid == null || $user->swuPassword == null){
+            $this->msg="请绑定校园网账号";
+            $this->code=400;
+            return;
+        }
+
+        $Param["swuid"] = $user->swuid;
         $results = Service_Score_Model::Search_Score($Param);
 
         if ($results->isEmpty()) {
-            //getNew data
-            //$updateGreade  = Middle_Curl_CurlRequest_Controller::Get(
-                //"http://172.18.9.140/api/grade/temp?swuid=".$Param['swuid']."&password=12345");
-            $gradeData = array(
-                ["score"=> 85,"term"=>1,"lessonId"=>201127,"credit"=>"4.0","academicYear"=>2018,
-                    "lessonName"=>"computer vision","teacher"=>"Hello kitty","department"=>"jixinyan",
-                    "examType"=>"normalExam","lessonType"=>"mustKao","gradePoint"=>5],
-                ["score"=> 85,"term"=>1,"lessonId"=>2012347,"credit"=>"4.0","academicYear"=>2017,
-                    "lessonName"=>"computer vision","teacher"=>"Hello kitty","department"=>"jixinyan",
-                    "examType"=>"normalExam","lessonType"=>"mustKao","gradePoint"=>5],
-            );
-            Service_Score_Model::Save_Score($Param['swuid'],$gradeData);
+
+            $gradeData  = Middle_Curl_CurlRequest_Controller::Get(
+                "/queryGrade?swu_id=".$user->swuid."&password=".$user->swuPassword);
+            $gradeData = json_decode($gradeData,true);
+            if(!$gradeData['success']){
+                $this->msg=$gradeData['message'];
+                $this->success=false;
+                $this->code=200;
+                return;
+            }else {
+                $gradeData = $gradeData['result']['data'];
+                Service_Score_Model::Save_Score($user->swuid,$gradeData);
+            }
 
         }
 

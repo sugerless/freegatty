@@ -61,16 +61,29 @@ class Api_Schedule_addLesson_Controller extends Api_Base_Controller
 
         $Param=(object)$this->Param;
         $Param->weeks = implode(",",$Param->weeks);
-        $swuid = "222015321210005";
+
+        $token = $_SERVER['HTTP_ACTOKEN'];
+        $redis=new Middle_Redis_FreegattyBaseCache_Controller();
+        $user=json_decode($redis->Get($token));
+
+        if($user->swuid == null || $user->swuPassword == null){
+            $this->msg="请绑定校园网账号";
+            $this->code=400;
+            return;
+        }
+
+
+        $swuid = $user->swuid;
 
         $results = Service_Schedule_Model::Has_Schedule_DIY($swuid,$Param->lessonId);
         if($results->isEmpty()) {
             Service_Schedule_Model::Save_Schedule($swuid, $Param, true);
-            $this->msg = "add schedule success";
+            $this->msg = "添加课程成功";
             $this->success = true;
             $this->code = 200;
         }else{
-            $this->msg="add this lesson success";
+            $this->msg="添加课程失败，该课程已存在";
+            $this->success = false;
             $this->code = 400;
         }
 

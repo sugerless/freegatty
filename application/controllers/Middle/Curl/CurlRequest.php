@@ -3,13 +3,12 @@
 
         public static function Get($path,$timeout = 10){
             $curl=curl_init();
-
-            curl_setopt($curl,CURLOPT_URL,$path);
+            $url = "http://xenoeye.org:43333".$path;
+            curl_setopt($curl,CURLOPT_URL,$url);
             curl_setopt($curl,CURLOPT_TIMEOUT,$timeout);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
             $responses=curl_exec($curl);
-
 
             if(curl_errno($curl))
             {
@@ -26,16 +25,16 @@
             if(empty($url)||empty($arrData)){
                 return false;
             }
-            $postUrl=$url;
-            $postData=json_encode($arrData);
 
+            $postData=json_encode($arrData);
             $curl=curl_init();
-            curl_setopt($curl,CURLOPT_URL,$postUrl);
-            curl_setopt($curl,CURLOPT_HEADER,0);
-            curl_setopt($curl,CURLOPT_TIMEOUT,$timeout);
             curl_setopt($curl,CURLOPT_POST,1);
+            curl_setopt($curl,CURLOPT_URL,$url);
             curl_setopt($curl,CURLOPT_POSTFIELDS,$postData);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curl,CURLOPT_RETURNTRANSFER,1);
+            curl_setopt($curl,CURLOPT_HTTPHEADER,array(
+                "Content-Type:application/json;charset='utf-8'"
+            ));
             $res=curl_exec($curl);
             curl_close($curl);
 

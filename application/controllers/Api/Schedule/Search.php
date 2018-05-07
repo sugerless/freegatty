@@ -11,7 +11,6 @@ class Api_Schedule_Search_Controller extends Api_Base_Controller
     {
         // TODO: Implement rules() method.
         return [
-            'swuid'=>'digits_between:15,15|required',
             'term'=>'numeric|max:3|min:0|required',
             'academicYear'=>'numeric|max:3000|min:2000|required',
         ];
@@ -22,8 +21,6 @@ class Api_Schedule_Search_Controller extends Api_Base_Controller
         // TODO: Implement messages() method.
 
         return [
-            'swuid.required'=>'学号不能为空',
-            'swuid.digits_between'=>'学号为15位数字',
 
             'term.numeric'=>'学期必须为数字',
             'term.max'=>'学期数必须为1,2,3',
@@ -41,23 +38,36 @@ class Api_Schedule_Search_Controller extends Api_Base_Controller
     {
 
         $Param = $this->getRequest()->getParams();
-        $swuid = "222015321210005";
+
+        $token = $_SERVER['HTTP_ACTOKEN'];
+        $redis=new Middle_Redis_FreegattyBaseCache_Controller();
+        $user=json_decode($redis->Get($token));
+
+        if($user->swuid == null || $user->swuPassword == null){
+            $this->msg="请绑定校园网账号";
+            $this->code=400;
+            return;
+        }
+
+        $swuid = $user->swuid;
+
         $results = Service_Schedule_Model::Search_Schedule($swuid,$Param,false);
 
         if ($results->isEmpty()) {
-            //getNew data
-            //$updateGreade  = Middle_Curl_CurlRequest_Controller::Get(
-            //"http://172.18.9.140/api/grade/temp?swuid=".$Param['swuid']."&password=12345");
-            $ScheduleData = array(["academicYear"=>2018,"term"=>1,"lessonId"=>"201127",
-                    "lessonName"=>"computer vision","teacher"=>"Hello kitty","academicTitle"=>"fujiaoshou",
-                    "startTime"=>4,"endTime"=>5,"week"=>"星期三","campus"=>"beiqu",
-                    "weekTime"=>"1,2,3,4,5","classroom"=>"25-0901",],
-                ["academicYear"=>2018,"term"=>1,"lessonId"=>"201127",
-                    "lessonName"=>"computer vision","teacher"=>"Hello kitty","academicTitle"=>"fujiaoshou",
-                    "startTime"=>4,"endTime"=>5,"week"=>"星期四","campus"=>"beiqu",
-                    "weekTime"=>"1,2,3,4,5","classroom"=>"25-0901"],
-            );
-            Service_Schedule_Model::Save_Schedule($Param['swuid'],$ScheduleData,$IsDIY=false);
+
+            $ScheduleData  = Middle_Curl_CurlRequest_Controller::Get(
+                "/querySchedule?swu_id=".$user->swuid."&password=".$user->swuPassword);
+            $ScheduleData = json_decode($ScheduleData,true);
+            if(!$ScheduleData['success']){
+                $this->msg=$ScheduleData['message'];
+                $this->success=false;
+                $this->code=200;
+                return;
+            }else {
+                $ScheduleData = $ScheduleData['result']['data'];
+                Service_Schedule_Model::Save_Schedule($user->swuid,$ScheduleData,false);
+            }
+
         }
         $results = Service_Schedule_Model::Search_Schedule_All($swuid,$Param);
         for ($i = 1; $i <= 20;$i++){
@@ -82,7 +92,7 @@ class Api_Schedule_Search_Controller extends Api_Base_Controller
                 "day" => $weeks[$result->week],
                 "week" => $result->week,
                 "campus" => $result->campus,
-                "classroom" => $result->classroom,
+                "classRoom" => $result->classRoom,
             );
             foreach ($weekTime as $week){
                 array_push($this->data[(int)$week -1]["weekitem"],$node);
