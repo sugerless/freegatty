@@ -4,7 +4,7 @@ class Api_Grade_Search_Controller extends Api_Base_Controller
 {
     protected function method(): string
     {
-        return 'POST';
+        return 'GET';
     }
 
     protected function rules(): array

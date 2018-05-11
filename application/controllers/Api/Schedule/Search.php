@@ -4,7 +4,7 @@ class Api_Schedule_Search_Controller extends Api_Base_Controller
 {
     protected function method(): string
     {
-        return 'POST';
+        return 'GET';
     }
 
     protected function rules(): array
@@ -77,7 +77,7 @@ class Api_Schedule_Search_Controller extends Api_Base_Controller
 
             ));
         }
-        $weeks = array("星期一"=>1, "星期二"=>2,"星期三"=>3,"星期四"=>4,"星期五"=>5, "星期六"=>6,"星期天"=>7);
+        $weeks = array("星期一"=>1, "星期二"=>2,"星期三"=>3,"星期四"=>4,"星期五"=>5, "星期六"=>6,"星期日"=>7);
         foreach ($results as $result) {
             $weekTime = explode(",",$result->week_time);
             $node = array(

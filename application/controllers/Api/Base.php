@@ -117,7 +117,7 @@ abstract class Api_Base_Controller extends Controller_Abstract
         $responseData = [
             'success' => $success,
             'message'   => $message,
-            'result'  => empty($data) ? new stdClass() : $data,
+            'result'  => ["data"=>empty($data) ? new stdClass() : $data],
         ];
 
         Log::info('output', $responseData);
